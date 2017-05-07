@@ -70,7 +70,7 @@ public class ReservationController {
 	}
 
 
-	@RequestMapping(method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE })
+	@RequestMapping(method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
 	public ResponseEntity<Object> searchReservation(@RequestParam(name = "passengerId", required = false) String passengerID,
 			@RequestParam(name = "from", required = false) String fromCity,
 			@RequestParam(name = "to", required = false) String toCity,
@@ -86,21 +86,25 @@ public class ReservationController {
 			}
 		}
 		if(!isValid) {
-			System.out.println("Not valid " + passengerID);
 			Response errorResponse = new Response("404", "No reservation found for given search criteria");
-			return new ResponseEntity(ServiceUtil.buildResponse("BadRequest", errorResponse, null),
-					HttpStatus.valueOf(Integer.parseInt(errorResponse.getCode())));
+			return new ResponseEntity(
+					ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)),
+					HttpStatus.valueOf(errorResponse.getCode()));
 		}
 
 		try {
 			Set<Reservation> reservations = reservationService.searchReservations(passengerId, fromCity, toCity, flightNumber);
+			if(reservations.size() == 0) {
+				throw new BusinessException("404", "No such reservation found.");
+			}
 			Map<String, Set<ReservationResponse>> reservationResponses = ServiceUtil.buildReservationsResponse(reservations, true, false);
 			Map<String, Object> response = ServiceUtil.buildResponse("reservations",
 					reservationResponses, null);
-			return ResponseEntity.ok(response);
+			return ResponseEntity.ok(ServiceUtil.getXMLFromObject(response));
 		} catch (BusinessException e) {
 			Response errorResponse = new Response(e.getErrorCode(), e.getMessage());
-			return new ResponseEntity(ServiceUtil.buildResponse("BadRequest", errorResponse, null),
+			return new ResponseEntity<>(
+					ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)),
 					HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
 		}
 	}
