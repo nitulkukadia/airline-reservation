@@ -87,7 +87,7 @@ public class PassengerController {
 			}
 		} catch (BusinessException e) {
 			Response errorResponse = new Response(e.getErrorCode(), e.getMessage());
-			return new ResponseEntity<>(ServiceUtil.buildResponse("BadRequest", errorResponse, null), HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
+			return new ResponseEntity(ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)), HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
 		}
 	}
 

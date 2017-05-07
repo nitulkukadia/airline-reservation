@@ -15,7 +15,6 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
-import org.assertj.core.util.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -52,7 +51,7 @@ public class ReservationServiceImpl implements ReservationService {
 	private ReservationFlightDao reservationFlightDao;
 
 	@Override
-	@Transactional(rollbackOn = BusinessException.class)
+	@Transactional(rollbackOn = Exception.class)
 	public Reservation createReservation(long passengerID, String[] flightNumbers) throws BusinessException {
 		Reservation reservation = new Reservation();
 		Passenger passenger = passengerDao.findOne(passengerID);
@@ -107,9 +106,8 @@ public class ReservationServiceImpl implements ReservationService {
 	}
 
 	@Override
-	@Transactional(rollbackOn = BusinessException.class)
+	@Transactional(rollbackOn = Exception.class)
 	public void cancelReservation(long reservationId) throws BusinessException {
-		System.out.println("Cancelling reservation :=====================> " + reservationId);
 		try {
 			Reservation reservation = reservationDao.findOne(reservationId);
 			if (reservation != null) {
@@ -145,7 +143,8 @@ public class ReservationServiceImpl implements ReservationService {
 						"Sorry, the requested reservation with number " + reservationId + " does not exist");
 			}
 		} catch (Exception e) {
-			throw new BusinessException("500", "Something went wrong while cancelling reservation");
+			throw new BusinessException("500",
+					"Something went wrong while cancelling reservation with number " + reservationId);
 		}
 	}
 
@@ -168,24 +167,17 @@ public class ReservationServiceImpl implements ReservationService {
 		Reservation reservation = getReservation(reservationId);
 		Passenger passenger = passengerDao.findOne(reservation.getPassenger().getId());
 		List<Flight> existingFlights = ServiceUtil.getFlights(passenger);
-		System.out.println("Existing flights => " + existingFlights.size());
 		if (flightsToRemove != null && flightsToRemove.length > 0) {
 			for (String flight : flightsToRemove) {
 				cancelFlight(flight, reservation, existingFlights);
-				System.out.println("Cancelled ===> " + flight);
 			}
 		}
 
-		System.out.println("Existing flights => " + existingFlights.size());
 		if (flightsToAdd != null && flightsToAdd.length > 0) {
 			for (String flight : flightsToAdd) {
-				System.out.println("Adding ===> " + flight);
 				addFlight(flight, reservation, passenger, existingFlights);
-				System.out.println("Added ===> " + flight);
 			}
 		}
-		// passenger = passengerDao.save(passenger);
-		// reservation = reservationDao.save(reservation);
 		return reservation;
 	}
 
@@ -239,7 +231,6 @@ public class ReservationServiceImpl implements ReservationService {
 			Flight existingFlight = existingReservationFlights.get(i);
 			if (flight.equals(existingFlight.getNumber())) {
 				index = i;
-				System.out.println("Removing flight " + flight);
 				// No need to remove reservation link as it will be done in
 				// cascading
 				/*
@@ -288,15 +279,14 @@ public class ReservationServiceImpl implements ReservationService {
 		Set<Long> reservationNumbers = new HashSet<>();
 		boolean hasCopied = false;
 
-
-		if(passengerId > 0) {
+		if (passengerId > 0) {
 			Set<Reservation> reservations = reservationDao.findByPassengerId(passengerId);
 			Set<Long> passengerReservationNumbers = new HashSet<>();
 
-			for(Reservation reservation : reservations) {
+			for (Reservation reservation : reservations) {
 				passengerReservationNumbers.add(reservation.getOrderNumber());
 			}
-			if(passengerReservationNumbers.size() == 0) {
+			if (passengerReservationNumbers.size() == 0) {
 				return responseSet;
 			} else {
 				hasCopied = true;
@@ -304,19 +294,19 @@ public class ReservationServiceImpl implements ReservationService {
 			}
 		}
 
-		if(flightNumber != null && !flightNumber.isEmpty()) {
+		if (flightNumber != null && !flightNumber.isEmpty()) {
 			List<ReservationFlight> reservations = reservationFlightDao.findByFlightNumber(flightNumber);
 			Set<Long> flightReservationNumbers = new HashSet<>();
 
-			for(ReservationFlight reservationFlight : reservations) {
+			for (ReservationFlight reservationFlight : reservations) {
 				flightReservationNumbers.add(reservationFlight.getReservationId());
 			}
-			if(flightReservationNumbers.size() == 0) {
+			if (flightReservationNumbers.size() == 0) {
 				return responseSet;
 			} else {
-				if(hasCopied) {
+				if (hasCopied) {
 					reservationNumbers.retainAll(flightReservationNumbers);
-					if(reservationNumbers.size() == 0) {
+					if (reservationNumbers.size() == 0) {
 						return responseSet;
 					}
 				} else {
@@ -326,15 +316,15 @@ public class ReservationServiceImpl implements ReservationService {
 			}
 		}
 
-		if(fromCity != null && !fromCity.isEmpty()) {
+		if (fromCity != null && !fromCity.isEmpty()) {
 			Set<Long> reservations = reservationFlightDao.findReservationsByFromCity(fromCity);
 			Set<Long> fromCityReservatoinNumbers = new HashSet<>();
 
-			if(reservations != null && reservations.size() > 0) {
+			if (reservations != null && reservations.size() > 0) {
 				fromCityReservatoinNumbers.addAll(reservations);
-				if(hasCopied) {
+				if (hasCopied) {
 					reservationNumbers.retainAll(fromCityReservatoinNumbers);
-					if(reservationNumbers.size() == 0) {
+					if (reservationNumbers.size() == 0) {
 						return responseSet;
 					}
 				} else {
@@ -343,18 +333,18 @@ public class ReservationServiceImpl implements ReservationService {
 				}
 			} else {
 				return responseSet;
-			} 
+			}
 		}
 
-		if(toCity != null && !toCity.isEmpty()) {
+		if (toCity != null && !toCity.isEmpty()) {
 			Set<Long> reservations = reservationFlightDao.findReservationsByToCity(toCity);
 			Set<Long> toCityReservatoinNumbers = new HashSet<>();
 
-			if(reservations != null && reservations.size() > 0) {
+			if (reservations != null && reservations.size() > 0) {
 				toCityReservatoinNumbers.addAll(reservations);
-				if(hasCopied) {
+				if (hasCopied) {
 					reservationNumbers.retainAll(toCityReservatoinNumbers);
-					if(reservationNumbers.size() == 0) {
+					if (reservationNumbers.size() == 0) {
 						return responseSet;
 					}
 				} else {
@@ -365,8 +355,10 @@ public class ReservationServiceImpl implements ReservationService {
 				return responseSet;
 			}
 		}
-		
-		responseSet =  Sets.newHashSet(reservationDao.findAll(reservationNumbers));
+		Iterable<Reservation> reservations = reservationDao.findAll(reservationNumbers);
+		for (Reservation reservation : reservations) {
+			responseSet.add(reservation);
+		}
 		return responseSet;
 	}
 }

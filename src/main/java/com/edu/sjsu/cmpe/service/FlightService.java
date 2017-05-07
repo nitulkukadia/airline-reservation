@@ -13,7 +13,7 @@ import com.edu.sjsu.cmpe.service.exception.BusinessException;
 
 public interface FlightService {
 
-	Flight createFlight(String id, int price, String from, String to, String departureTime, String arrivalTime,
+	Flight createOrUpdateFlight(String id, int price, String from, String to, String departureTime, String arrivalTime,
 			String descr, int capacity, String model, String manufacturer, int yearOfManufacture)
 			throws BusinessException;
 	

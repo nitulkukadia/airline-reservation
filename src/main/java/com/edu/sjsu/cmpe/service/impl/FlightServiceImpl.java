@@ -34,8 +34,8 @@ public class FlightServiceImpl implements FlightService {
 	private FlightDao flightDao;
 
 	@Override
-	@Transactional(rollbackOn = BusinessException.class)
-	public Flight createFlight(String id, int price, String from, String to, String departureTime, String arrivalTime,
+	@Transactional(rollbackOn = Exception.class)
+	public Flight createOrUpdateFlight(String id, int price, String from, String to, String departureTime, String arrivalTime,
 			String descr, int capacity, String model, String manufacturer, int yearOfManufacture)
 					throws BusinessException {
 		DateFormat format = new SimpleDateFormat("yy-MM-dd-HH", Locale.ENGLISH);
@@ -112,7 +112,7 @@ public class FlightServiceImpl implements FlightService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackOn=Exception.class)
 	public void deleteFlight(String flightNumber) throws BusinessException {
 		Flight flight = flightDao.findByNumber(flightNumber);
 		if (flight != null) {

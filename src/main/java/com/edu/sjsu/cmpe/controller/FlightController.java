@@ -34,7 +34,7 @@ public class FlightController {
 	private FlightService flightService;
 
 	@PostMapping(value = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE })
-	public Object createFlight(@PathVariable(name = "id", required = true) String id,
+	public Object createOrUpdateFlight(@PathVariable(name = "id", required = true) String id,
 			@RequestParam(name = "price", required = true) int price,
 			@RequestParam(name = "from", required = true) String from,
 			@RequestParam(name = "to", required = true) String to,
@@ -46,18 +46,20 @@ public class FlightController {
 			@RequestParam(name = "manufacturer", required = true) String manufacturer,
 			@RequestParam(name = "yearOfManufacture", required = true) int yearOfManufacture) {
 		try {
-			return flightService.createFlight(id, price, from, to, departureTime, arrivalTime, descr, capacity, model,
-					manufacturer, yearOfManufacture);
+			return flightService.createOrUpdateFlight(id, price, from, to, departureTime, arrivalTime, descr, capacity,
+					model, manufacturer, yearOfManufacture);
 		} catch (BusinessException e) {
 			Response errorResponse = new Response(e.getErrorCode(), e.getMessage());
-			return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
+			return new ResponseEntity<>(
+					ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)),
+					HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
 		}
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@GetMapping(value = "/{flightNumber}", 
-				//params = "json=true", 
-				produces = { MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(value = "/{flightNumber}",
+			// params = "json=true",
+			produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getFlightAsJson(
 			@PathVariable(name = "flightNumber", required = true) String flightNumber) {
 		try {
@@ -71,22 +73,22 @@ public class FlightController {
 		}
 	}
 
-	@GetMapping(value = "/{flightNumber}", 
-				params = "xml=true", 
-				produces = { MediaType.APPLICATION_XML_VALUE })
+	@GetMapping(value = "/{flightNumber}", params = "xml=true", produces = { MediaType.APPLICATION_XML_VALUE })
 	public Object getFlightAsXml(@PathVariable(name = "flightNumber", required = true) String flightNumber) {
 		try {
 			Flight flight = flightService.getFlight(flightNumber);
-			Object response = ServiceUtil.buildResponse("flight", ServiceUtil.getFlightResponse(flight, true, true), null);
+			Object response = ServiceUtil.buildResponse("flight", ServiceUtil.getFlightResponse(flight, true, true),
+					null);
 			return ResponseEntity.ok(ServiceUtil.getXMLFromObject(response));
 		} catch (BusinessException e) {
 			Response errorResponse = new Response(e.getErrorCode(), e.getMessage());
-			return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
+			return new ResponseEntity<>(
+					ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)),
+					HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
 		}
 	}
 
-	@DeleteMapping(value = "/{flightNumber}", 
-				   produces = { MediaType.APPLICATION_XML_VALUE })
+	@DeleteMapping(value = "/{flightNumber}", produces = { MediaType.APPLICATION_XML_VALUE })
 	public Object deleteFlight(@PathVariable(name = "flightNumber", required = true) String flightNumber) {
 		try {
 			flightService.deleteFlight(flightNumber);
@@ -94,7 +96,9 @@ public class FlightController {
 			return reposne;
 		} catch (BusinessException e) {
 			Response errorResponse = new Response(e.getErrorCode(), e.getMessage());
-			return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
+			return new ResponseEntity<>(
+					ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)),
+					HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
 		}
 	}
 }

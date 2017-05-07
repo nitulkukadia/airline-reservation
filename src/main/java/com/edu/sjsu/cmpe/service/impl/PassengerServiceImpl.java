@@ -30,7 +30,7 @@ public class PassengerServiceImpl implements PassengerService {
 	private ReservationService reservationService;
 
 	@Override
-	@Transactional
+	@Transactional(rollbackOn=Exception.class)
 	public Passenger createPassenger(String firstName, String lastName, int age, String gender, String phone)
 			throws BusinessException {
 		Passenger passenger = new Passenger();
@@ -71,7 +71,7 @@ public class PassengerServiceImpl implements PassengerService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackOn=Exception.class)
 	public Passenger updatePassenger(String id, String firstName, String lastName, int age, String gender, String phone) throws BusinessException {
 		Passenger passenger = getPassenger(id);
 		if (passenger != null) {
@@ -81,13 +81,10 @@ public class PassengerServiceImpl implements PassengerService {
 			passenger.setGender(gender);
 			passenger.setPhone(phone);
 			try {
-				System.out.println("Saving");
 				passengerDao.save(passenger);
-				System.out.println("Saved");
 			} catch (Exception e) {
 				throw new BusinessException("400", "DB constraint violated, please make sure phone number is unique");
 			}
-			System.out.println("No exception");
 			return passenger;
 		} else {
 			throw new BusinessException("404",
@@ -96,7 +93,7 @@ public class PassengerServiceImpl implements PassengerService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackOn=Exception.class)
 	public void deletePassenger(String id)  throws BusinessException {
 		Passenger passenger = getPassenger(id);
 		if (passenger != null) {

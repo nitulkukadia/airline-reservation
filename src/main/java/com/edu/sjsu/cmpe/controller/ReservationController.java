@@ -49,7 +49,9 @@ public class ReservationController {
 					ServiceUtil.buildReservationResponse(reservation, true, true), null));
 		} catch (BusinessException e) {
 			Response errorResponse = new Response(e.getErrorCode(), e.getMessage());
-			return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
+			return new ResponseEntity<>(
+					ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)),
+					HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
 		}
 	}
 
