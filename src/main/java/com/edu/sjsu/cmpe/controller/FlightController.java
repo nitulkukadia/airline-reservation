@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,13 +26,12 @@ import com.edu.sjsu.cmpe.service.model.json.Response;
 import com.edu.sjsu.cmpe.service.util.ServiceUtil;
 
 @RestController
-@RequestMapping("/flight")
 public class FlightController {
 
 	@Autowired
 	private FlightService flightService;
 
-	@PostMapping(value = "/{id}", produces = { MediaType.APPLICATION_XML_VALUE })
+	@PostMapping(value = "/flight/{id}", produces = { MediaType.APPLICATION_XML_VALUE })
 	public Object createOrUpdateFlight(@PathVariable(name = "id", required = true) String id,
 			@RequestParam(name = "price", required = true) int price,
 			@RequestParam(name = "from", required = true) String from,
@@ -57,7 +55,7 @@ public class FlightController {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@GetMapping(value = "/{flightNumber}",
+	@GetMapping(value = "/flight/{flightNumber}",
 			// params = "json=true",
 			produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getFlightAsJson(
@@ -73,7 +71,7 @@ public class FlightController {
 		}
 	}
 
-	@GetMapping(value = "/{flightNumber}", params = "xml=true", produces = { MediaType.APPLICATION_XML_VALUE })
+	@GetMapping(value = "/flight/{flightNumber}", params = "xml=true", produces = { MediaType.APPLICATION_XML_VALUE })
 	public Object getFlightAsXml(@PathVariable(name = "flightNumber", required = true) String flightNumber) {
 		try {
 			Flight flight = flightService.getFlight(flightNumber);
@@ -88,7 +86,7 @@ public class FlightController {
 		}
 	}
 
-	@DeleteMapping(value = "/{flightNumber}", produces = { MediaType.APPLICATION_XML_VALUE })
+	@DeleteMapping(value = "/airline/{flightNumber}", produces = { MediaType.APPLICATION_XML_VALUE })
 	public Object deleteFlight(@PathVariable(name = "flightNumber", required = true) String flightNumber) {
 		try {
 			flightService.deleteFlight(flightNumber);

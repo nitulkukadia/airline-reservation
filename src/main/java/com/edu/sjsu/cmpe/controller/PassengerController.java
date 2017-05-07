@@ -36,8 +36,7 @@ public class PassengerController {
 	@Autowired
 	private PassengerService passengerService;
 
-	@RequestMapping(method = RequestMethod.POST,
-			produces = { MediaType.APPLICATION_JSON_VALUE })
+	@RequestMapping(method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> createPassenger(@RequestParam(name = "firstname", required = true) String firstName,
 			@RequestParam(name = "lastname", required = true) String lastName,
 			@RequestParam(name = "age", required = true) int age,
@@ -54,8 +53,8 @@ public class PassengerController {
 		}
 	}
 
-	@GetMapping(value = "/{id}", 
-			//params = "json=true", 
+	@GetMapping(value = "/{id}",
+			// params = "json=true",
 			produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Object> getPassengerAsJson(@PathVariable(name = "id", required = true) String id) {
 		try {
@@ -64,7 +63,7 @@ public class PassengerController {
 				PassengerResponse passengerResponse = ServiceUtil.buildPassengerResponse(passenger, true);
 				return ResponseEntity.ok(ServiceUtil.buildResponse("passenger", passengerResponse, null));
 			} else {
-				throw new BusinessException("404", "Passenger with id "+ id + " not found.");
+				throw new BusinessException("404", "Passenger with id " + id + " not found.");
 			}
 
 		} catch (BusinessException e) {
@@ -83,11 +82,13 @@ public class PassengerController {
 				Object response = ServiceUtil.buildResponse("passenger", passengerResponse, null);
 				return ServiceUtil.getXMLFromObject(response);
 			} else {
-				throw new BusinessException("404", "Passenger with id "+ id + " not found.");
+				throw new BusinessException("404", "Passenger with id " + id + " not found.");
 			}
 		} catch (BusinessException e) {
 			Response errorResponse = new Response(e.getErrorCode(), e.getMessage());
-			return new ResponseEntity(ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)), HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
+			return new ResponseEntity(
+					ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)),
+					HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
 		}
 	}
 
@@ -121,7 +122,9 @@ public class PassengerController {
 			return reposne;
 		} catch (BusinessException e) {
 			Response errorResponse = new Response(e.getErrorCode(), e.getMessage());
-			return errorResponse;
+			return new ResponseEntity(
+					ServiceUtil.getXMLFromObject(ServiceUtil.buildResponse("BadRequest", errorResponse, null)),
+					HttpStatus.valueOf(Integer.parseInt(e.getErrorCode())));
 		}
 	}
 }

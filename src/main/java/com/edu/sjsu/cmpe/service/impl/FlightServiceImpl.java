@@ -120,7 +120,7 @@ public class FlightServiceImpl implements FlightService {
 				flightDao.delete(flight);
 			} else {
 				throw new BusinessException("400",
-						"Sorry, the flight with number " + flightNumber + "cannot be deleted.");
+						"Sorry, the flight with number " + flightNumber + " cannot be deleted.");
 			}
 		} else {
 			throw new BusinessException("404",
